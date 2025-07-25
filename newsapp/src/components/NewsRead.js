@@ -1,0 +1,1396 @@
+import React, { Component } from 'react'
+import NewsItems from './NewsItems'
+import Spinner from './Spinner';
+import PropTypes from 'prop-types'
+
+
+export class News extends Component {
+static defaultProps={
+  country:"us",
+  pagesize:5
+}
+static propsType={
+  country:PropTypes.string,
+  pagesize:PropTypes.number
+}
+capitalizeFirstLetter=(string)=> {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+// articles = [{"source": {
+// "id": "theverge",
+// "name": "The Verge"
+// },
+// "author": "Dominic Preston",
+// "title": "UK wants to weasel out of demand for Apple encryption back door",
+// "description": "The UK government is reportedly set to back down from its battle with Apple to obtain back door access to secure user data protected by the company’s iCloud encryption. Victory hasn’t come through the courts, or government figures changing their minds on priv…",
+// "url": "https://www.theverge.com/news/710504/ukappleencryptionbackdooricloudadpbackingdown",
+// "urlToImage": "https://platform.theverge.com/wpcontent/uploads/sites/2/2025/03/STKS498_ENCRYPTION_CVIRGINIA_C.webp?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200",
+// "publishedAt": "202507${this.props}T08:30:19Z",
+// "content": "US government opposition has the UKs back against the wall.\r\nThe UK government is reportedly set to back down from its battle with Apple to obtain back door access to secure user data protected by th… [+1435 chars]"
+// },
+// {
+// "source": {
+// "id": "theverge",
+// "name": "The Verge"
+// },
+// "author": "Jay Peters",
+// "title": "TMobile is bringing lowlatency tech to 5G for the first time",
+// "description": "Over the next few weeks, TMobile is expanding support for the L4S standard, which stands for “Low Latency, Low Loss, Scalable Throughput.” The technology helps highpriority internet packets move along with fewer delays, to make video calls and cloud games f…",
+// "url": "https://www.theverge.com/news/710312/tmobilelowlatencyl4s5g",
+// "urlToImage": "https://platform.theverge.com/wpcontent/uploads/sites/2/2025/04/acastro_STK067__01.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200",
+// "publishedAt": "202507${this.props}T12:52:07Z",
+// "content": "Latency hitches that can interrupt video calls or slow down browsing could be reduced with L4S, and TMobile is the first wireless company using it in the US. \r\nLatency hitches that can interrupt vid… [+1986 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "MacRumors"
+// },
+// "author": "Tim Hardwick",
+// "title": "Apple Sports Gets Expanded Soccer Support, Rolls Out in Mexico",
+// "description": "Apple today updated its Sports app with support for the FA Community Shield, the annual English football preseason opener where the reigning champions of the Premier League take on the FA Cup winners.\n\n\n\n\n\nThis year will see league champions Liverpool Footba…",
+// "url": "https://www.macrumors.com/2025/07/${this.props}/applesportsfacommunityshieldmexico/",
+// "urlToImage": "https://images.macrumors.com/t/8p4UqUu1lsml3vaabJHRu_zC70=/1600x/articlenew/2025/05/applesportsnewslettersignup.jpg",
+// "publishedAt": "202507${this.props}T12:50:57Z",
+// "content": "Apple today updated its Sports app with support for the FA Community Shield, the annual English football preseason opener where the reigning champions of the Premier League take on the FA Cup winner… [+1277 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "MacRumors"
+// },
+// "author": "Tim Hardwick",
+// "title": "iOS 27 to Prioritize New Features for Apple's Foldable iPhone",
+// "description": "Apple will soon begin development of iOS 27 with a shift in emphasis as the company prepares its flagship software to accommodate the first foldable iPhone, according to Bloomberg's Mark Gurman.\n\n\n\n\n\nWriting in his latest Power On newsletter, Gurman reports t…",
+// "url": "https://www.macrumors.com/2025/07/${this.props}/ios27prioritizefoldableiphonefeatures/",
+// "urlToImage": "https://images.macrumors.com/t/7O_4ilWjMpNSXf1pIBM37P_dKgU=/2500x/articlenew/2025/03/FoldableiPhone2023FeatureHomescreen.jpg",
+// "publishedAt": "202507${this.props}T13:34:38Z",
+// "content": "Apple will soon begin development of iOS 27 with a shift in emphasis as the company prepares its flagship software to accommodate the first foldable iPhone, according to Bloomberg's Mark Gurman.\r\nWri… [+1418 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "MacRumors"
+// },
+// "author": "Hartley Charlton",
+// "title": "UK May Backtrack on Controversial Demand for Backdoor to Encrypted Apple User Data",
+// "description": "The British government may be forced to drop its plans to force Apple to build a backdoor into encrypted user data, the Financial Times reports.\n\n\n\n\n\nIn February, it emerged that the British government had secretly demanded Apple gives it access to all encryp…",
+// "url": "https://www.macrumors.com/2025/07/20/ukmaybacktrackondemandforbackdoor/",
+// "urlToImage": "https://images.macrumors.com/t/yQWSP33bSb6XzNF0OyIcSnnOmDM=/2500x/articlenew/2025/02/iCloudVersusUKKeyFeature.jpg",
+// "publishedAt": "202507${this.props}T02:50:04Z",
+// "content": "The British government may be forced to drop its plans to force Apple to build a backdoor to access encrypted user data, the Financial Times reports.\r\nIn February, it emerged that the British governm… [+1945 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "MacRumors"
+// },
+// "author": "Joe Rossignol",
+// "title": "iOS 26's Biggest CarPlay Feature Was Quietly Hiding on Apple's Website",
+// "description": "Apple recently announced that iPhone users will soon be able to watch videos right on the CarPlay screen in supported vehicles.\n\n\n\n\n\nThis is arguably the biggest new CarPlay feature coming with the iOS 26 update later this year, and yet Apple did not even men…",
+// "url": "https://www.macrumors.com/2025/07/${this.props}/ios26biggestcarplayfeature/",
+// "urlToImage": "https://images.macrumors.com/t/hMegQeZkHLO8aLxTcOQKOuWz5VY=/1960x/articlenew/2025/06/CarPlayLiquidGlassDark.jpg",
+// "publishedAt": "202507${this.props}T14:45:00Z",
+// "content": "Apple recently announced that iPhone users will soon be able to watch videos right on the CarPlay screen in supported vehicles.\r\nThis is arguably the biggest new CarPlay feature coming with the iOS 2… [+1945 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Hipertextual"
+// },
+// "author": "Gabriel Erard",
+// "title": "Reino Unido cancelaría su plan para espiar a los usuarios de iCloud: Trump podría salvar a Apple de un escándalo",
+// "description": "Reino Unido podría cancelar su plan para espiar a los usuarios de iCloud de todo el mundo, que obligaría a Apple a crear una puerta trasera en su nube. Según reporta Financial Times, las autoridades británicas se encontrarían divididas respecto de esta inicia…",
+// "url": "http://hipertextual.com/2025/07/reinounidocancelariaplanespiarusuariosicloud",
+// "urlToImage": "https://imgs.hipertextual.com/wpcontent/uploads/2025/04/timcook.jpg",
+// "publishedAt": "202507${this.props}T13:35:57Z",
+// "content": "Reino Unido podría cancelar su plan para espiar a los usuarios de iCloud de todo el mundo, que obligaría a Apple a crear una puerta trasera en su nube. Según reporta Financial Times, las autoridades … [+4354 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Hipertextual"
+// },
+// "author": "Gabriel Erard",
+// "title": "El Pixel 10 se filtra otra vez y confirma sus nuevos colores",
+// "description": "Google presentará sus móviles Pixel 10 en poco menos de un mes, y una filtración acaba de exponer los nuevos colores del modelo base. Según publica Android Headlines, el modelo de entrada estará disponible en cuatro colores, con algunas elecciones bastante in…",
+// "url": "http://hipertextual.com/2025/07/pixel10nuevoscolores",
+// "urlToImage": "https://i0.wp.com/imgs.hipertextual.com/wpcontent/uploads/2024/08/Pixel97scaled.jpg?fit=2560%2C1450&quality=70&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T15:32:00Z",
+// "content": "Google presentará sus móviles Pixel 10 en poco menos de un mes, y una filtración acaba de exponer los nuevos colores del modelo base. Según publica Android Headlines, el modelo de entrada estará disp… [+3395 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Hackaday"
+// },
+// "author": "Lewin Day",
+// "title": "Why Apple Dumped 2,700 Computers In A Landfill in 1989",
+// "description": "In 1983, the Lisa was supposed to be a barnburner. Apple’s brandnew computer had a cutting edge GUI, a mouse, and power far beyond the 8bit machines that came before. It looked like nothing…",
+// "url": "https://hackaday.com/2025/07/${this.props}/whyappledumped2700computersinalandfillin1989/",
+// "urlToImage": "https://hackaday.com/wpcontent/uploads/2025/07/AppleLisa.jpg",
+// "publishedAt": "202507${this.props}T14:00:19Z",
+// "content": "In 1983, the Lisa was supposed to be a barnburner. Apple’s brandnew computer had a cutting edge GUI, a mouse, and power far beyond the 8bit machines that came before. It looked like nothing else on… [+5165 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Yahoo Entertainment"
+// },
+// "author": "Sanmit Amin",
+// "title": "Apple (AAPL) iPhone Production Soars as India Gains Prominence Amid Slowing U.S. Demand",
+// "description": "Apple Inc. (NASDAQ:AAPL) is one of the most profitable consumer stocks to buy now. Apple significantly ramped up iPhone production in the first half of 2025,...",
+// "url": "https://finance.yahoo.com/news/appleaapliphoneproductionsoars035948543.html",
+// "urlToImage": "https://s.yimg.com/ny/api/res/1.2/e1QwhqQiBt5ecLL5Qx6Rkg/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM/https://media.zenfs.com/en/insidermonkey.com/bd47dc2e86b4a3086f845d200d9daf1f",
+// "publishedAt": "202507${this.props}T03:59:48Z",
+// "content": "Apple Inc. (NASDAQ:AAPL) is one of the most profitable consumer stocks to buy now. Apple significantly ramped up iPhone production in the first half of 2025, with output rising 53% yearoveryear to … [+2009 chars]"
+// },
+// {
+// "source": {
+// "id": "thehill",
+// "name": "The Hill"
+// },
+// "author": "Amie Parnes",
+// "title": "New York establishment Democrats mull over Mamdani charm offensive",
+// "description": "New York Democrats cool to their party’s Big Apple mayoral nominee Zohran Mamdani are weighing their options as the 33yearold progressive makes his own...",
+// "url": "https://thehill.com/homenews/campaign/5409390cuomoindependentrunnewyork/",
+// "urlToImage": "https://media.zenfs.com/en/the_hill_articles_341/0ad9cd1ada34ea0ed51bc26176d1cbed",
+// "publishedAt": "202507${this.props}T10:00:00Z",
+// "content": "New York Democrats cool to their partys Big Apple mayoral nominee Zohran Mamdani are weighing their options as the 33yearold progressive makes his own pitch to centrists that they should back him.\r… [+6223 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Xataka.com"
+// },
+// "author": "Carlos Prego",
+// "title": "Un hombre metió un AirTag en sus zapatillas y las donó a la Cruz Roja. Y entonces descubrió cosas extrañas",
+// "description": "No importa la ciudad. Ni el país. Ni la época del año. En Europa es difícil visitar una localidad mínimamente grande y no encontrarse al menos un puñado de contenedores para la donación de ropa, sobre todo en puntos concurridos, como áreas comerciales, urbani…",
+// "url": "https://www.xataka.com/magnet/alemanmetioairtagunaszapatillasdonadasparasaberdondeacababanongtuvoquedarexplicaciones",
+// "urlToImage": "https://i.blogs.es/b1f4ad/cruzrojaapp/840_560.jpeg",
+// "publishedAt": "202507${this.props}T10:31:33Z",
+// "content": "No importa la ciudad. Ni el país. Ni la época del año. En Europa es difícil visitar una localidad mínimamente grande y no encontrarse al menos un puñado de contenedores para la donación de ropa, sobr… [+4359 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Cory.news"
+// },
+// "author": "John Gruber",
+// "title": "Don’t Forget About Atari",
+// "description": "",
+// "url": "https://cory.news/posts/20250717atari/",
+// "urlToImage": null,
+// "publishedAt": "202507${this.props}T00:18:36Z",
+// "content": "A bunch of tech bloggers are talking about 80s home computer nostalgia, triggered by the release of a brand new Commodore 64. Among the Apple fans, there is an unsurprising amount of Commodorehate. … [+3687 chars]"
+// },
+// {
+// "source": {
+// "id": "ign",
+// "name": "IGN"
+// },
+// "author": "Christian Wait",
+// "title": "Deals for Today: Pokémon TCG Black Bolt ETB In Stock For Less and Switch 2 In Stock",
+// "description": "As of July ${this.props}, the Pokémon TCG Black Bolt Elite Trainer Box is in stock for $78.75 at Amazon, with Switch 2 invites still live and KRK Kreate studio monitor bundles on sale.",
+// "url": "https://www.ign.com/articles/dealsfortodayjuly${this.props}",
+// "urlToImage": "https://assetsprd.ignimgs.com/2025/07/${this.props}/pixel9761753097${this.props}4248.jpg?width=1280&format=jpg&auto=webp&quality=80",
+// "publishedAt": "202507${this.props}T11:45:13Z",
+// "content": "Amazon has quietly become one of the best places to pick up Pokémon TCG products this week, with a surprise restock that brings several popular Elite Trainer Boxes closer to MSRP than weve seen in mo… [+4967 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Substack.com"
+// },
+// "author": "Anton Gubarenko",
+// "title": "Memory Efficiency in iOS: Reducing footprint and beyond",
+// "description": "Make responsive and performant apps",
+// "url": "https://antongubarenko.substack.com/p/memoryefficiencyiniosreducing",
+// "urlToImage": "https://substackcdn.com/image/fetch/$s_!wgQr!,w_1200,h_600,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstackpostmedia.s3.amazonaws.com%2Fpublic%2Fimages%2F36a68f0eeee14286944c88c446669564_1024x1024.png",
+// "publishedAt": "202507${this.props}T15:59:40Z",
+// "content": "Previously, we explored how memory is measured and what tools are available for inspecting usage in iOS apps. Now, lets shift our focus to reducing memory consumption using a set of practical techniq… [+10700 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "heise online"
+// },
+// "author": "Inge Schwabe",
+// "title": "heiseAngebot: LiveWebinar: AppleGeräte mit Microsoft Intune verwalten",
+// "description": "Erfahren Sie, wie Sie AppleGeräte effizient mit Microsoft Intune zu verwalten. Unser Experte vermittelt fundiertes Wissen und beantwortet Ihre Fragen.",
+// "url": "https://www.heise.de/news/LiveWebinarAppleGeraetemitMicrosoftIntuneverwalten10486204.html",
+// "urlToImage": "https://heise.cloudimg.io/bound/1200x1200/q85.pnglossy85.webplossy85.foil1/_wwwheisede_/imgs/18/4/8/9/6/8/7/4/AppleverwaltenMicrosoftIntune_ticker1920x1080px_1920x1080b3443cba8ca80d2b.png",
+// "publishedAt": "202507${this.props}T06:00:00Z",
+// "content": "AppleGeräte wie iPhones, iPads und Macs lassen sich mit Microsoft Intune umfassend verwalten sowohl im Szenario der firmeneigenen Bereitstellung als auch im BYODKontext. In diesem zweistündigen Liv… [+2399 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "heise online"
+// },
+// "author": "Isabel Grünewald",
+// "title": "KIUpdate kompakt: ChatGPT Agent, Meta vs. AI Act, MatheOlympiade, MLX",
+// "description": "Das \"KIUpdate\" liefert werktäglich eine Zusammenfassung der wichtigsten KIEntwicklungen.",
+// "url": "https://www.heise.de/news/KIUpdatekompaktChatGPTAgentMetavsAIActMatheOlympiadeMLX10494349.html",
+// "urlToImage": "https://heise.cloudimg.io/bound/1200x1200/q85.pnglossy85.webplossy85.foil1/_wwwheisede_/imgs/18/4/9/0/1/1/1/3/heise_Podcasts_KIUpdate_ho_16_9794748bc52f173fd.jpg",
+// "publishedAt": "202507${this.props}T13:01:00Z",
+// "content": "Inhaltsverzeichnis\r\nOpenAI hat mit ChatGPT Agent eine erweiterte Version seines KIAssistenten vorgestellt. Der Agent kombiniert mehrere KIModelle und kann über Konnektoren auf Computertools wie Kal… [+7441 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "heise online"
+// },
+// "author": "Judith Hohmann",
+// "title": "Mut zahlt sich aus: Click Boom Flash # 42 \"Werbefotografie\"",
+// "description": "\"Es wird nie ein Lebenslauf empfohlen, sondern immer die Person\", sagt Daniel Gossmann über seine Erfahrungen in der Werbebranche.",
+// "url": "https://www.heise.de/news/MutzahltsichausClickBoomFlash42Werbefotografie10486161.html",
+// "urlToImage": "https://heise.cloudimg.io/bound/1200x1200/q85.pnglossy85.webplossy85.foil1/_wwwheisede_/imgs/18/4/8/9/6/8/5/1/By_Daniel_Gossmann_DSC2522_Online_fe66d355697081e2.jpg",
+// "publishedAt": "202507${this.props}T04:55:00Z",
+// "content": "Inhaltsverzeichnis\r\nDaniel Gossmann startet seine Karriere als Fotograf nicht erst lange in der Heimat, sondern direkt in Mailand mit Mut, Improvisation und einer Portion Glück. Im Podcast erzählt er… [+2223 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "heise online"
+// },
+// "author": "Frank Schräer",
+// "title": "Bau neuer TSMCChipfabriken für CPUs der 1,4NanometerKlasse beginnt noch 2025",
+// "description": "Vier neue Produktionsstätten für TSMCs A14Fertigungsprozess entstehen in der Mitte Taiwans. Diese \"Fab 25\" soll erste Chips ab Ende 2028 liefern können.",
+// "url": "https://www.heise.de/news/BauneuerTSMCChipfabrikenfuerCPUsder14NanometerKlassebeginntnoch202510493939.html",
+// "urlToImage": "https://heise.cloudimg.io/bound/1200x1200/q85.pnglossy85.webplossy85.foil1/_wwwheisede_/imgs/18/4/9/0/0/8/9/7/Central_Taiwan_Science_Parkf7a5303b1eb7a05b.webp",
+// "publishedAt": "202507${this.props}T03:05:00Z",
+// "content": "TSMC wird noch im Laufe dieses Jahres den Bau von vier neuen Chipfabriken aufnehmen, die als \"Fab 25\" zusammengefasst werden und ab Ende 2028 Prozessoren der 1,4NanometerKlasse fertigen können soll… [+2599 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "heise online"
+// },
+// "author": "Frank Schräer",
+// "title": "Montag: Polizeizugriff auf RingTürkameras, TSMC mit neuen A14Chipfabriken",
+// "description": "Polizeiüberwachung persönlicher Kameras + 1,4nmChips von TSMC + Microsofts SharepointLücke ohne Patch + Urteil zu ParshipVerträgen + Studien zu KINutzung",
+// "url": "https://www.heise.de/news/MontagPolizeizugriffaufRingTuerkamerasTSMCmitneuenA14Chipfabriken10493951.html",
+// "urlToImage": "https://heise.cloudimg.io/bound/1200x1200/q85.pnglossy85.webplossy85.foil1/_wwwheisede_/imgs/18/4/9/0/0/9/0/3/monday5${this.props}c30d05e494266.webp",
+// "publishedAt": "202507${this.props}T04:15:00Z",
+// "content": "Die AmazonTochter Ring hat den Firmengründer Jamie Siminoff zurückgeholt. Dieser ändert die Ausrichtung der Firma in den USA und betont nicht mehr die persönliche Sicherheit, sondern die Sicherheit … [+7050 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Chance Miller",
+// "title": "Report: iOS 27 to focus on new features for upcoming iPhone Fold",
+// "description": "Act surprised: Apple is soon expected to formally kick off development of iOS 27. This year, Apple will have a big task: updating the iOS experience in preparation for its most radical new iPhone yet. \n\n\n\n more…",
+// "url": "https://9to5mac.com/2025/07/${this.props}/reportios27tofocusonnewfeaturesforupcomingiphonefold/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/2025/03/iphonefold05.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T12:32:48Z",
+// "content": "Act surprised: Apple is soon expected to formally kick off development of iOS 27. This year, Apple will have a big task: updating the iOS experience in preparation for its most radical new iPhone yet… [+1886 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Ryan Christoffel",
+// "title": "tvOS 26 adds new feature that makes AirPlay speakers better than ever",
+// "description": "tvOS 26 is the next major update for Apple TV 4K and Apple TV HD users. Joining the Liquid Glass design, new screensavers, and FaceTime upgrades, tvOS 26 introduces a new feature that could make AirPlay speakers an asset in your home theater setup.\n\n\n\n more…",
+// "url": "https://9to5mac.com/2025/07/${this.props}/tvos26addsnewfeaturethatmakesairplayspeakersbetterthanever/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/2025/07/tvos26airplayspeakers.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T15:28:47Z",
+// "content": "tvOS 26 is the next major update for Apple TV 4K and Apple TV HD users. Joining the Liquid Glass design, new screensavers, and FaceTime upgrades, tvOS 26 introduces a new feature that could make AirP… [+1429 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Marcus Mendes",
+// "title": "Apple details how it trained its new AI models: 4 interesting highlights",
+// "description": "During WWDC25, Apple announced new versions of its ondevice and cloudbased foundation models. Now, they have published a tech report detailing how those models were trained, optimized, and evaluated. And the report includes some genuinely interesting under…",
+// "url": "https://9to5mac.com/2025/07/${this.props}/appledetailshowittraineditsnewaimodels4interestinghighlights/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/2024/06/AppledoesntuseyourdatatotrainAppleIntelligence.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T12:58:15Z",
+// "content": "During WWDC25, Apple announced new versions of its ondevice and cloudbased foundation models. Now, they have published a tech report detailing how those models were trained, optimized, and evaluate… [+7695 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Benjamin Mayo",
+// "title": "Apple Sports app expands soccer coverage and launches in a new country",
+// "description": "The Apple Sports app, which allows users to track sports scores in realtime, today expanded its coverage of soccer. With the new 3.1 update, fans of the FA Community Shield soccer tournament can now follow along inside Apple Sports. \n\n\n\nAlso notable is that …",
+// "url": "https://9to5mac.com/2025/07/${this.props}/applesportsappsoccercoveragenewcountry/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/2025/07/applesportsupdate.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T11:55:20Z",
+// "content": "The Apple Sports app, which allows users to track sports scores in realtime, today expanded its coverage of soccer. With the new 3.1 update, fans of the FA Community Shield soccer tournament can now… [+1063 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Ben Lovejoy",
+// "title": "British government set to back down on secret iCloud backdoor after US pressure",
+// "description": "We learned earlier this year that the British government had secretly ordered Apple to create a backdoor into encrypted data for all iCloud users worldwide. Specifically, it wanted a way to see personal data protected by Apple’s introduction of Advanced Data …",
+// "url": "https://9to5mac.com/2025/07/${this.props}/britishgovernmentsettobackdownonsecreticloudbackdoorafteruspressure/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/2025/07/BritishgovernmentsettobackdownonsecretiCloudbackdoorafterUSpressure.webp?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T11:16:30Z",
+// "content": "We learned earlier this year that the British government had secretly ordered Apple to create a backdoor into encrypted data for all iCloud users worldwide. Specifically, it wanted a way to see perso… [+3244 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Chance Miller",
+// "title": "9to5Mac Daily: July ${this.props}, 2025 – iPad Pro and iPhone 17 Air rumors",
+// "description": "Listen to a recap of the top stories of the day from 9to5Mac. 9to5Mac Daily is available on iTunes and Apple’s Podcasts app, Stitcher, TuneIn, Google Play, or through our dedicated RSS feed for Overcast and other podcast players.\n\n\n\nSponsored by Bitwarden: Ch…",
+// "url": "https://9to5mac.com/2025/07/${this.props}/dailyjuly${this.props}2025/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/20${this.props}/12/9to5MacDailyartlead.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T14:32:40Z",
+// "content": "Listen to a recap of the top stories of the day from 9to5Mac. 9to5Mac Daily is available on iTunes and Apples Podcasts app, Stitcher, TuneIn, Google Play, or through our dedicated RSS feed for Overca… [+987 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Ryan Christoffel",
+// "title": "iPhone 17 Air’s rumored accessory could be exactly what new model needs",
+// "description": "iPhone 17 Air is a brand new model expected to debut this fall, with Apple prioritizing form over function. The ultrathin, futuristic design will come with some compromises, but one rumored new accessory could solve my biggest concern: battery life.\n\n\n\n more…",
+// "url": "https://9to5mac.com/2025/07/${this.props}/iphone17airsrumoredaccessorycouldbeexactlywhatnewmodelneeds/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/2025/05/iphoneairmockup.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T14:19:37Z",
+// "content": "iPhone 17 Air is a brand new model expected to debut this fall, with Apple prioritizing form over function. The ultrathin, futuristic design will come with some compromises, but one rumored new acce… [+2572 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "9to5Mac"
+// },
+// "author": "Justin Kahn",
+// "title": "Deals: 24GB M4 MacBook Air $179 off, M4 Pro Mac mini $150+ off, USBC AirPods Max $99 off, more",
+// "description": "Your Monday edition of 9to5Toys Lunch Break is now live with notable discounts on Apple’s Midnight 15inch 24GB M4 MacBook Air at $179 off courtesy of Amazon to join the ongoing $200 price drop on the 14inch M4 MacBook Pro. Next up, we move over to the 24GB …",
+// "url": "https://9to5mac.com/2025/07/${this.props}/deals24gbmacbookairm4promacminiairpodsmax/",
+// "urlToImage": "https://i0.wp.com/9to5mac.com/wpcontent/uploads/sites/6/2025/07/AppledealsMacBookAirMacmini.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1",
+// "publishedAt": "202507${this.props}T15:47:13Z",
+// "content": "Your Monday edition of 9to5Toys Lunch Break is now live with notable discounts on Apple’s Midnight 15inch 24GB M4 MacBook Air at $179 off courtesy of Amazon to join the ongoing $200 price drop on th… [+8602 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "Andrew Orr",
+// "title": "Apple quietly adding video playback to CarPlay in iOS 26",
+// "description": "Apple is adding video playback to CarPlay in iOS 26, confirming the feature on its developer site instead of highlighting it during the WWDC 2025 keynote.Apple is adding video playback to CarPlayThe upcoming iOS 26 will let users stream videos from their iPho…",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/applequietlyaddingvideoplaybacktocarplayinios26",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/64430134241IMG_2917xl.jpg",
+// "publishedAt": "202507${this.props}T15:36:14Z",
+// "content": "Apple is adding video playback to CarPlay in iOS 26, confirming the feature on its developer site instead of highlighting it during the WWDC 2025 keynote.\r\nThe upcoming iOS 26 will let users stream v… [+1906 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "William Gallagher",
+// "title": "Apple insists its AI training is ethical and respects publishers",
+// "description": "In a new research paper, Apple doubles down on its claim of not training its Apple Intelligence models on anything scraped illegally from the web.Apple Intelligence — image credit: AppleIt's a fair bet that Artificial Intelligence systems have been scraping e…",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/appleinsistsitsaitrainingisethicalandrespectspublishers",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/64428134237888AppleIntelligencexl.jpg",
+// "publishedAt": "202507${this.props}T15:00:49Z",
+// "content": "In a new research paper, Apple doubles down on its claim of not training its Apple Intelligence models on anything scraped illegally from the web.\r\nIt's a fair bet that Artificial Intelligence system… [+5692 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "William Gallagher",
+// "title": "BOE's new fight with Samsung Display could affect the iPhone Fold",
+// "description": "BOE filed a new patent infringement lawsuit against Samsung Display, seeking a US ban on completed smartphones, which theoretically may include the iPhone Fold.Render of a possible iPhone Fold  Source AppleInsiderWhile news of the suit has only now been reve…",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/boesnewfightwithsamsungdisplaycouldaffecttheiphonefold",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/632691314546205912854160473124685topiphonefold1xlxlxl.jpg",
+// "publishedAt": "202507${this.props}T12:05:11Z",
+// "content": "BOE filed a new patent infringement lawsuit against Samsung Display, seeking a US ban on completed smartphones, which theoretically may include the iPhone Fold.\r\nWhile news of the suit has only now b… [+3464 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "Andrew Orr",
+// "title": "How Apple made AI in iOS 26 more helpful & more private",
+// "description": "A recent machine learning update from Apple reveals how iOS 26 brings faster, safer AI that was trained without your texts, your photos, or your permission.Apple Intelligence is continually improvingApple has overhauled its foundation models for iOS 26 to be …",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/howapplemadeaiinios26morehelpfulmoreprivate",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/64427134234IMG_1548xl.jpg",
+// "publishedAt": "202507${this.props}T14:38:25Z",
+// "content": "A recent machine learning update from Apple reveals how iOS 26 brings faster, safer AI that was trained without your texts, your photos, or your permission.\r\nApple has overhauled its foundation model… [+5013 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "Malcolm Owen",
+// "title": "Apple's iPhone production in India soars as sales increase",
+// "description": "Apple's production in India reportedly surged in the early stages of 2025, with up to 17% of global iPhone production stemming from the country.Tim Cook in a previous visit to India. Image Credit: AppleApple has been gradually expanding its manufacturing oper…",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/applesiphoneproductionshifttoindia",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/6442413422763240131408cookindiaxlxl.jpg",
+// "publishedAt": "202507${this.props}T12:16:${this.props}Z",
+// "content": "Apple's production in India reportedly surged in the early stages of 2025, with up to 17% of global iPhone production stemming from the country. \r\nApple has been gradually expanding its manufacturing… [+2093 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "William Gallagher",
+// "title": "UK will back down over its demands on Apple for an encryption backdoor",
+// "description": "Faced with US pressure, the UK is reportedly looking for a way out of its own demands for an iOS backdoor, without also limiting its future ambitions.UK Parliament — image credit: UK GovernmentIn 2024, the UK changed its own laws so that it could demand Apple…",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/ukwillbackdownoveritsdemandsonappleforanencryptionbackdoor",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/541391090794883695405000leadUKxlxl.jpg",
+// "publishedAt": "202507${this.props}T10:10:26Z",
+// "content": "Faced with US pressure, the UK is reportedly looking for a way out of its own demands for an iOS backdoor, without also limiting its future ambitions.\r\nIn 2024, the UK changed its own laws so that it… [+2773 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "Andrew O'Hara",
+// "title": "Wemo's demise, Aqara G100 camera, & smart chicken coop followup on HomeKit Insider",
+// "description": "On the latest HomeKit Insider Podcast episode, Jen Tuohy once again joins to cover the demise of Wemo, Aqara's new gear, and to talk about smart chicken coops.HomeKit Insider PodcastLeading the episode, before getting into smart homespecific news, we have to…",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/wemosdemiseaqarag100camerasmartchickencoopfollowuponhomekitinsider",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/4688991403HKIHeaderxl.jpg",
+// "publishedAt": "202507${this.props}T12:19:15Z",
+// "content": "On the latest HomeKit Insider Podcast episode, Jen Tuohy once again joins to cover the demise of Wemo, Aqara's new gear, and to talk about smart chicken coops.\r\nLeading the episode, before getting in… [+1720 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "AppleInsider"
+// },
+// "author": "Christine McKee",
+// "title": "Deals: Apple's M4 Mac mini with 24GB RAM, 512GB SSD falls to $869",
+// "description": "A $20 incart coupon stacked with a $110 instant rebate brings Apple's M4 Mac mini with 24GB of RAM and 512GB of storage down to just $869. Plus, save up to $329 on every config.Save triple digits on Apple's M4 Mac mini.The current Mac mini with Apple's 10co…",
+// "url": "https://appleinsider.com/articles/25/07/${this.props}/dealsapplesm4macminiwith24gbram512gbssdfallsto869",
+// "urlToImage": "https://photos5.appleinsider.com/gallery/64429134240m4macminisalemay2025xl.jpg",
+// "publishedAt": "202507${this.props}T16:22:02Z",
+// "content": "A $20 incart coupon stacked with a $110 instant rebate brings Apple's M4 Mac mini with 24GB of RAM and 512GB of storage down to just $869. Plus, save up to $329 on every config.\r\nThe current Mac min… [+1266 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Journal du geek"
+// },
+// "author": "Olivier",
+// "title": "Microsoft arrête de vendre des films et des séries",
+// "description": "Sans tambour ni trompette, Microsoft met fin à la vente de contenus vidéo sur ses boutiques en ligne. Les utilisateurs conservent l’accès à leurs achats passés, mais ils ne peuvent plus acquérir de nouveaux films ou épisodes.",
+// "url": "https://www.journaldugeek.com/2025/07/${this.props}/microsoftarretedevendredesfilmsetdesseries/",
+// "urlToImage": "https://www.journaldugeek.com/app/uploads/2025/07/microsoftstore1600x900.jpg",
+// "publishedAt": "202507${this.props}T06:02:48Z",
+// "content": "Cest une page qui se tourne dans lécosystème Microsoft : la firme de Redmond a mis fin, en toute discrétion, à la vente de films et séries sur ses différentes plateformes. La nouvelle a été confirmée… [+2937 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Álvaro García M.",
+// "title": "\"Será el lanzamiento menos Apple hasta la fecha\". Gurman adelanta los primeros detalles del iPhone plegable, incluido el precio",
+// "description": "El iPhone plegable ha sido durante años el eterno rumor. \"El año que viene se lanza\", decían algunos rumores cada vez. Sin embargo, ahora parece estar más cerca que nunca. Ya no es un solo filtrador esporádico el que lo afirma, sino todos los que tienen infor…",
+// "url": "https://www.applesfera.com/rumores/seralanzamientoapplehistoriagurmanadelantaprimerosdetallesiphoneplegableincluidoprecio",
+// "urlToImage": "https://i.blogs.es/f05da5/plegable/840_560.jpeg",
+// "publishedAt": "202507${this.props}T07:01:34Z",
+// "content": "El iPhone plegable ha sido durante años el eterno rumor. \"El año que viene se lanza\", decían algunos rumores cada vez. Sin embargo, ahora parece estar más cerca que nunca. Ya no es un solo filtrador … [+3296 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Alberto García",
+// "title": "Comprar un iPad top hoy sale mucho más barato. Oferta flash en este modelo con chip M2, ahora a precio mínimo histórico",
+// "description": "Muchas veces comprar lo último no es lo más aconsejable, al menos si lo que buscamos priorizar es un buen precio. El iPad Air M3 es una auténtica delicia para los que busquen potencia en un modelo excelente, pero... el iPad Air m2 también, sobre todo ahora mi…",
+// "url": "https://www.applesfera.com/seleccion/compraripadtophoysalemuchobaratoofertaflashestemodelochipm2ahoraapreciominimohistorico",
+// "urlToImage": "https://i.blogs.es/e3f9e0/ipadairm2/840_560.jpeg",
+// "publishedAt": "202507${this.props}T10:31:33Z",
+// "content": "Muchas veces comprar lo último no es lo más aconsejable, al menos si lo que buscamos priorizar es un buen precio. El iPad Air M3 es una auténtica delicia para los que busquen potencia en un modelo ex… [+1636 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Guille Lomener",
+// "title": "ios 27: información",
+// "description": "Apple siempre está mirando hacia el futuro, y aunque acabamos de conocer todas las novedades que iOS 26 ha traído consigo este año, las primeras especulaciones sobre iOS 27 ya empiezan a generar expectación. Si algo nos ha enseñado la evolución de iOS a lo la…",
+// "url": "https://www.applesfera.com/nuevo/ios27informacion",
+// "urlToImage": "https://i.blogs.es/11f1c8/ios27logo/840_560.jpeg",
+// "publishedAt": "202507${this.props}T15:23:00Z",
+// "content": "Apple siempre está mirando hacia el futuro, y aunque acabamos de conocer todas las novedades que iOS 26 ha traído consigo este año, las primeras especulaciones sobre iOS 27 ya empiezan a generar expe… [+7673 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Guille Lomener",
+// "title": "El plan del Reino Unido para espiar el iCloud de sus ciudadanos se ha topado con un enemigo inesperado. Y no ha sido Apple",
+// "description": "Reino Unido creía que su batalla sería contra Apple. Se equivocaron. El verdadero enemigo de su plan para acceder a los datos cifrados de iCloud ha resultado ser su aliado más importante: Estados Unidos. Y no cualquier funcionario estadounidense, sino el vice…",
+// "url": "https://www.applesfera.com/apple1/planreinounidoparaespiaricloudsusciudadanossehatopadoenemigoinesperadonohasidoapple",
+// "urlToImage": "https://i.blogs.es/4de72c/llaveicloud/840_560.jpeg",
+// "publishedAt": "202507${this.props}T10:01:34Z",
+// "content": "Reino Unido creía que su batalla sería contra Apple. Se equivocaron. El verdadero enemigo de su plan para acceder a los datos cifrados de iCloud ha resultado ser su aliado más importante: Estados Uni… [+4042 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Guille Lomener",
+// "title": "Si la pantalla de tu iPhone te parecía la misma desde hace años, tenías razón. Apple por fin romperá la monotonía con el iPhone 17",
+// "description": "Si llevas con iPhone desde hace tiempo, seguro que has notado algo extraño: las pantallas llevan un par de años prácticamente sin cambios. No es una sensación tuya. Por ejemplo, el iPhone 14 tenía 6,1 pulgadas y 60 Hz. El iPhone 15 repitió con 6,1 pulgadas y …",
+// "url": "https://www.applesfera.com/iphone/pantallatuiphonetepareciahaceanosteniasrazonapplefinromperamonotoniaiphone17",
+// "urlToImage": "https://i.blogs.es/16bf38/pantallaiphone/840_560.jpeg",
+// "publishedAt": "202507${this.props}T11:11:36Z",
+// "content": "Si llevas con iPhone desde hace tiempo, seguro que has notado algo extraño: las pantallas llevan un par de años prácticamente sin cambios. No es una sensación tuya. Por ejemplo, el iPhone 14 tenía 6,… [+60${this.props} chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Álvaro García M.",
+// "title": "El iPad se ha convertido en el \"banco de pruebas\" de los MacBook. Y las primeras filtraciones del iPad Pro M5 lo confirman",
+// "description": "Los iPad Pro se vestirán de gala antes de acabar el año. Ya se ha filtrado que se lanzarán entre octubre y noviembre. Y si hablamos de sus especificaciones, solo podemos esperar lo mejor. Algo que, curiosamente, deja ya de ser una novedad en esta gama, la cua…",
+// "url": "https://www.applesfera.com/rumores/ipadsehaconvertidobancopruebasmacbookprimerasfiltracionesipadprom5confirman",
+// "urlToImage": "https://i.blogs.es/4ba8d3/ipadpro/840_560.jpeg",
+// "publishedAt": "202507${this.props}T08:43:07Z",
+// "content": "Los iPad Pro se vestirán de gala antes de acabar el año. Ya se ha filtrado que se lanzarán entre octubre y noviembre. Y si hablamos de sus especificaciones, solo podemos esperar lo mejor. Algo que, c… [+3363 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Guille Lomener",
+// "title": "Puedes cargar el iPhone por la noche. La verdadera clave para salvar su batería está en dos números: 20 y 80",
+// "description": "Durante mis trabajo como servicio técnico certificado por Apple, he visto de todo. Y si algo me ha quedado claro es que el tema de la salud de la batería se ha convertido en una obsesión para muchos usuarios. Todo comenzó con la polémica de la ralentización d…",
+// "url": "https://www.applesfera.com/trucos/puedescargariphonenocheverdaderaclaveparasalvarsubateriaestadosnumeros2080",
+// "urlToImage": "https://i.blogs.es/bd8890/2880/840_560.jpeg",
+// "publishedAt": "202507${this.props}T14:01:34Z",
+// "content": "Durante mis trabajo como servicio técnico certificado por Apple, he visto de todo. Y si algo me ha quedado claro es que el tema de la salud de la bateríase ha convertido en una obsesión para muchos u… [+7987 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Applesfera.com"
+// },
+// "author": "Álvaro García M.",
+// "title": "Esta mafia se dedicaba a robar móviles en Barcelona. Y que \"solo\" te robasen el iPhone no era lo peor de todo",
+// "description": "Te acaban de robar el iPhone y víctima de la desesperación, tratas de recuperarlo con un email que te manda la mismísima Apple para ello. Sin embargo, ese mensaje no es de Apple y acabas agravando el problema, puesto que sin pretenderlo estás cediendo el cont…",
+// "url": "https://www.applesfera.com/iphone/estamafiasededicabaarobarmovilesbarcelonaquesoloterobaseniphonenoerapeortodo",
+// "urlToImage": "https://i.blogs.es/9b6e02/iphonerobadobarcelona/840_560.jpeg",
+// "publishedAt": "202507${this.props}T12:00:24Z",
+// "content": "Te acaban de robar el iPhone y víctima de la desesperación, tratas de recuperarlo con un email que te manda la mismísima Apple para ello. Sin embargo, ese mensaje no es de Apple y acabas agravando el… [+3619 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Phandroid  News for Android"
+// },
+// "author": "Tyler Lee",
+// "title": "Latest rumor insists iPhone Fold on track for 2026 launch",
+// "description": "Apple may finally launch its iPhone Fold in 2026. But after years of delays and shifting timelines, is it really happening this time?\nThe post Latest rumor insists iPhone Fold on track for 2026 launch appeared first on Phandroid.",
+// "url": "https://phandroid.com/2025/07/${this.props}/latestrumorinsistsiphonefoldontrackfor2026launch/",
+// "urlToImage": "https://phandroid.com/wpcontent/uploads/2024/09/iphone16handsonad1640x398.png",
+// "publishedAt": "202507${this.props}T14:53:13Z",
+// "content": "The iPhone Fold 2026 rumor has returned. Again. Bloombergs Mark Gurman says Apple will launch its first foldable iPhone next year, and that the company is now embracing the form factor, especially in… [+1111 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Phandroid  News for Android"
+// },
+// "author": "Tyler Lee",
+// "title": "Perplexity wants to replace Chrome on your next phone with its Comet browser",
+// "description": "Perplexity's Comet browser could soon be preinstalled on smartphones, challenging Chrome’s dominance with builtin AI features.\nThe post Perplexity wants to replace Chrome on your next phone with its Comet browser appeared first on Phandroid.",
+// "url": "https://phandroid.com/2025/07/${this.props}/perplexitywantstoreplacechromeonyournextphonewithitscometbrowser/",
+// "urlToImage": "https://phandroid.com/wpcontent/uploads/2025/01/samsunggalaxys256scaled.jpg",
+// "publishedAt": "202507${this.props}T14:58:14Z",
+// "content": "Perplexitys got a browser now. Its called Comet, and the company wants it preinstalled on your next smartphone. Thats according to CEO Aravind Srinivas, who told Reuters theyre already in talks with… [+1${this.props}4 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Pressecitron"
+// },
+// "author": "Manon Carpentier",
+// "title": "Cette fonction de Google Maps disparaît sur Android et c’est une catastrophe",
+// "description": "Depuis quelque temps, il n’est plus possible d’afficher les contrôles multimédias depuis Google Maps sur Android.",
+// "url": "https://www.pressecitron.net/cettefonctiondegooglemapsdisparaitsurandroidetcestunecatastrophe/",
+// "urlToImage": "https://www.pressecitron.net/app/uploads/2025/02/GoogleMapsnavigationvoitureroutetrajet1500x900.jpg",
+// "publishedAt": "202507${this.props}T15:57:23Z",
+// "content": "À lheure actuelle, Google Maps figure comme lapplication incontournable pour aller dun point A à un point B Que cela soit en voiture, à pied, en vélo ou en transports en commun. Forcément, la firme d… [+${this.props}13 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Pitchfork"
+// },
+// "author": "Pitchfork",
+// "title": "Tyler, the Creator, Nine Inch Nails, Alex G, and More: This Week’s Pitchfork Selects Playlist",
+// "description": "Our weekly playlist highlights songs that our writers, editors, and contributors are listening to on repeat",
+// "url": "https://pitchfork.com/news/tylerthecreatornineinchnailsalexgthisweekpitchforkselectsplaylist/",
+// "urlToImage": "https://media.pitchfork.com/photos/687a613fbe767b72365304f4/16:9/w_1280,c_limit/P4K25_Selects_2x1.png",
+// "publishedAt": "202507${this.props}T13:36:37Z",
+// "content": "The staff of Pitchfork listens to a lot of new music. A lot of it. On any given day our writers, editors, and contributors go through an imposing number of new releases, giving recommendations to eac… [+1067 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Pitchfork"
+// },
+// "author": "Matthew Strauss",
+// "title": "Mariah Carey Announces New Album Here for It All",
+// "description": "The singer reunited with producer L.A. Reid for her first album since 2018’s Caution",
+// "url": "https://pitchfork.com/news/mariahcareyannouncesnewalbumhereforitall/",
+// "urlToImage": "https://media.pitchfork.com/photos/687e5da1e3387cb869964771/16:9/w_1280,c_limit/MariahCarey.jpeg",
+// "publishedAt": "202507${this.props}T15:37:09Z",
+// "content": "Mariah Carey has officially announced her 16th studio album: Here for It All is out September 26. Its Careys first album in her multialbum deal with Gamma., the media company launched in 2023 by for… [+780 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Ritholtz.com"
+// },
+// "author": "Barry Ritholtz",
+// "title": "Transcript: Neil Dutta, RenMac",
+// "description": "The transcript from this week’s, MiB: Neil Dutta, Economics Chief at Renaissance Macro Research, is below. You can stream and download our full conversation, including any podcast extras, on Apple Podcasts, Spotify, YouTube, and Bloomberg. All of our earlier …",
+// "url": "https://ritholtz.com/2025/07/transcriptneilduttarenmac/",
+// "urlToImage": "https://ritholtz.com/wpcontent/uploads/2023/02/Mibtile.png",
+// "publishedAt": "202507${this.props}T12:30:46Z",
+// "content": "The transcript from this weeks, MiB: Neil Dutta, Economics Chief at Renaissance Macro Research, is below.\r\nYou can stream and download our full conversation, including any podcast extras, on Apple Po… [+71275 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Xataka Android"
+// },
+// "author": "Iván Linares",
+// "title": "Google y Apple están recorriendo España con sus hombres mochila. Así puedes saber si pasan cerca",
+// "description": "Tanto Google Maps como Apple Maps utilizan unas mochilas con cámaras y radares que se usan para capturar las calles y otras localizaciones. Los mochileros o «trekkers» cargan con las mochilas y pasean por las zonas para cartografiar el entorno. Actualmente, a…",
+// "url": "https://www.xatakandroid.com/navegacionymapas/googleappleestanrecorriendoespanasushombresmochilaasipuedessaberpasancerca",
+// "urlToImage": "https://i.blogs.es/acbade/portadamochilerosapplemapsgooglemaps/840_560.jpeg",
+// "publishedAt": "202507${this.props}T14:01:34Z",
+// "content": "Tanto Google Maps como Apple Maps utilizan unas mochilas con cámaras y radares que se usan para capturar las calles y otras localizaciones. Los mochileros o «trekkers» cargan con las mochilas y pasea… [+2845 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Pressecitron"
+// },
+// "author": "JeanYves Alric",
+// "title": "« Le cauchemar de Netflix et d’Amazon » : face à Trump, la France et l’UE veulent dégainer leur arme secrète !",
+// "description": "Les Européens se préparent à riposter face à de possibles droits de douane à 30 %.",
+// "url": "https://www.pressecitron.net/lecauchemardenetflixetdamazonfaceatrumplafranceetlueveulentdegainerleurarmesecrete/",
+// "urlToImage": "https://www.pressecitron.net/app/uploads/2025/07/trumpfrance1600x900.jpg",
+// "publishedAt": "202507${this.props}T07:25:46Z",
+// "content": "Cest une menace très concrète. Le 12 juillet dernier, Donald Trump a annoncé que des droits de douane de 30 % seraient appliqués dès le 1er août sur lensemble des importations en provenance de lUnion… [+2542 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Pressecitron"
+// },
+// "author": "Pressecitron",
+// "title": "Il place un AirTag dans des baskets et les donne à la CroixRouge : sa découverte fait scandale",
+// "description": "Vous vous êtes demandés ce que devenaient les dons faits à la CroixRouge ? Pour le savoir, un influenceur allemand a caché un AirTag dans une paire de baskets données à la CroixRouge. Et il a fait une drôle de découverte.",
+// "url": "https://www.pressecitron.net/ilplaceunairtagdansdesbasketsetlesdonnealacroixrougesadecouvertefaitscandale/",
+// "urlToImage": "https://www.pressecitron.net/app/uploads/2025/07/airtagscroixrouge1600x900.jpg",
+// "publishedAt": "202507${this.props}T15:34:26Z",
+// "content": "Tout commence en Bavière, dans la ville de Starnberg. Moe.Haa, influenceur allemand, décide de déposer une paire de baskets dans un conteneur de la CroixRouge allemande. Mais avant cela, il cache un… [+3995 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Espinof.com"
+// },
+// "author": "Belén Prieto",
+// "title": "Kevin Feige asume el tropiezo con las series de Marvel y advierte que habrá menos televisión después de 'Daredevil: Born Again'",
+// "description": "No es ningún secreto que Marvel Studios atraviesa un proceso de cambio importante. El desgaste del universo cinematográfico es algo palpable que llevamos notando durante años y hay una sobrecarga de contenido. Por eso mismo,  era necesario que se acabasen ado…",
+// "url": "https://www.espinof.com/entretenimiento/kevinfeigeasumetropiezoseriesmarveladviertequehabratelevisiondespuesdaredevilbornagain",
+// "urlToImage": "https://i.blogs.es/83e580/otk10645991_rh2025/840_560.jpeg",
+// "publishedAt": "202507${this.props}T15:31:33Z",
+// "content": "No es ningún secreto que Marvel Studios atraviesa un proceso de cambio importante. El desgaste del universo cinematográfico es algo palpable que llevamos notando durante años y hay una sobrecarga de … [+3620 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Faz.net"
+// },
+// "author": "Corinna Budras",
+// "title": "Hohe Sozialausgaben, hohe Zinsen: „Der Bundeshaushalt ist ein Chaos“",
+// "description": "Das Sondervermögen verspricht kurzfristig viel Geld, engt aber den Gestaltungsspielraum künftiger Regierungen gewaltig ein.",
+// "url": "https://www.faz.net/podcasts/fazpodcastfuerdeutschland/hohesozialausgabenhohezinsenderbundeshaushaltisteinchaos110600752.html",
+// "urlToImage": "https://media1.faz.net/ppmedia/aktuell/wirtschaft/3506897875/1.10594035/facebook_teaser/derhessischehaushaltweist.jpg",
+// "publishedAt": "202507${this.props}T14:58:07Z",
+// "content": "Die Gründerin und Direktorin der Denkfabrik Dezernat Zukunft, Philippa SiglGlöckner, warnt im F.A.Z. Podcast für Deutschland vor Freibier für die Verteidigung und Geldnot für den Rest. Jetzt braucht… [+801 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Habr.com"
+// },
+// "author": "mrpickles (Wunder Fund)",
+// "title": "[Перевод] Знакомьтесь: TCPinUDP",
+// "description": "Протокол MPTCP (Multipath TCP) устроен довольно сложно. Главным образом это так изза того, что он должен нормально работать в интернете, где промежуточные устройства (middlebox), такие как NAT, файрволы, IDS или прокси, способны модифицировать части TCPпаке…",
+// "url": "https://habr.com/ru/companies/wunderfund/articles/929518/#postcontentbody",
+// "urlToImage": "https://habrastorage.org/getpro/habr/upload_files/e44/3b8/0a1/e443b80a16ae5527062783419dbbfc8b.png",
+// "publishedAt": "202507${this.props}T09:55:56Z",
+// "content": "MPTCP (Multipath TCP) .  , , (middlebox), NAT, , IDS , TCP.  MPTCP, , , MPTCP «» «» TCP. «» , .  , MPTCP 2013 Apple. MPTCP . , PEP (Performance Enhancing Proxy, , ), MPTCP , . MPTCP , MPTCP… [+3905 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "MacRumors"
+// },
+// "author": "Joe Rossignol",
+// "title": "Apple Store in Bristol Permanently Closing Next Month",
+// "description": "Apple is permanently closing its retail store in the heart of Bristol, England next month, and there is no replacement store in sight.\n\n\n\nApple Bristol in 2023\n\nThe store's final day of business will be Saturday, August 9.\n\n\n\nWithin the past few days, Apple u…",
+// "url": "https://www.macrumors.com/2025/07/${this.props}/applestorebristolclosingnextmonth/",
+// "urlToImage": "https://images.macrumors.com/t/ZeeS2vxKRt35xMLlink7nsUNMjY=/1600x/articlenew/2025/04/AppleBristolCurrent.jpg",
+// "publishedAt": "202507${this.props}T13:18:01Z",
+// "content": "Apple is permanently closing its retail store in the heart of Bristol, England next month, and there is no replacement store in sight.\r\nThe store's final day of business will be Saturday, August 9.Wi… [+1367 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "MacRumors"
+// },
+// "author": "Tim Hardwick",
+// "title": "Apple Could Lose Key iPhone Display Supplier in US Trade Ruling",
+// "description": "Apple could be potentially forced to drop a key supplier of iPhone OLED panels, following a preliminary ruling issued by the U.S. International Trade Commission (ITC) that found Chinese display maker BOE violated federal trade secret laws.\n\n\n\n\n\nThe ITC found …",
+// "url": "https://www.macrumors.com/2025/07/${this.props}/applecouldlosekeyiphonedisplaysupplier/",
+// "urlToImage": "https://images.macrumors.com/t/pPsaKpUjxGE9sfYIiJsZWx5Etw8=/1780x/articlenew/2024/09/iphone16display.jpg",
+// "publishedAt": "202507${this.props}T10:37:38Z",
+// "content": "Apple could be potentially forced to drop a key supplier of iPhone OLED panels, following a preliminary ruling issued by the U.S. International Trade Commission (ITC) that found Chinese display maker… [+1769 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Les Numériques"
+// },
+// "author": "Alexandre Scotti",
+// "title": "Actualité : iPhone 17 Air : une batterie minuscule signée Apple pour une autonomie ridicule ?",
+// "description": "La capacité de la batterie de l’iPhone 17 Air ne dépasserait pas les 3 000 mAh. Un choix lié à la finesse extrême de ce nouveau modèle, et qui devrait clairement limiter l’autonomie.",
+// "url": "https://www.lesnumeriques.com/telephoneportable/iphone17airunebatterieminusculesigneeapplepouruneautonomieridiculen240094.html",
+// "urlToImage": "https://cdn.lesnumeriques.com/optim/news/24/240094/7f418ad2iphone17airunebatterieminusculesigneeapplepouruneautonomieridicule__1200_678__1113320201035.jpg",
+// "publishedAt": "202507${this.props}T10:27:00Z",
+// "content": "La révolution dApple en 2025 a un nom : liPhone 17 Air. Attendu pour le début du mois de septembre, aux côtés des iPhone 17, 17 Pro et 17 Pro Max, ce modèle naura pas tout pour plaire. Le plus inquié… [+2464 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Les Numériques"
+// },
+// "author": "Alexandre Scotti",
+// "title": "Tutoriel : Photo supprimée par erreur sur iPhone ? Cette astuce simple peut la faire réapparaître",
+// "description": "Vous avez supprimé par erreur une photo ou une vidéo précieuse sur votre iPhone ? Nul besoin de composer le 112 : une option permet de la récupérer facilement, à condition de ne pas trop tarder.",
+// "url": "https://www.lesnumeriques.com/telephoneportable/photosupprimeeparerreursuriphonecetteastucesimplepeutlafairereapparaitrea240017.html",
+// "urlToImage": "https://cdn.lesnumeriques.com/optim/tutorial/24/240017/f2e369f9photosupprimeeparerreursuriphonecetteastucesimplepeutlafairereapparaitre__1200_678__035166003816.jpg",
+// "publishedAt": "202507${this.props}T15:00:00Z",
+// "content": "En faisant du tri dans votre bibliothèque sur Apple iPhone, il est fort probable que vous supprimiez lune de vos photos ou vidéos favorites. Une situation très stressante sur le coup, mais qui peut ê… [+1835 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Les Numériques"
+// },
+// "author": "Alexandre Scotti",
+// "title": "Actualité : Google Maps : une fonction adorée des conducteurs supprimée sur Android sans aucune explication",
+// "description": "Mauvaise nouvelle pour les personnes utilisant Google Maps : le contrôle multimédia a disparu sur Android. Impossible donc de mettre en pause ou de changer la musique en un rien de temps lors de son trajet.",
+// "url": "https://www.lesnumeriques.com/telephoneportable/googlemapsunefonctionadoreedesconducteurssupprimeesurandroidsansaucuneexplicationn240101.html",
+// "urlToImage": "https://cdn.lesnumeriques.com/optim/news/24/240101/8754d559googlemapsunefonctionadoreedesconducteurssupprimeesurandroidsansaucuneexplication__1200_678__050849693116.jpg",
+// "publishedAt": "202507${this.props}T12:57:00Z",
+// "content": "Il y a des choix que lon n'explique pas, et Google vient den faire lun des plus étranges. Depuis quelque temps, lapplication Maps a vu disparaître les contrôles multimédia, une fonctionnalité clé pou… [+1979 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Les Numériques"
+// },
+// "author": "Antoine Roche",
+// "title": "Actualité : WhatsApp sur Windows : il va y avoir du changement, et pas en bien",
+// "description": "Meta a pris une décision pour le moins controversée autour de la version Windows de WhatsApp. De bonnes, mais surtout de mauvaises nouvelles, en découlent pour les utilisateurs.",
+// "url": "https://www.lesnumeriques.com/applilogiciel/whatsappsurwindowsilvayavoirduchangementetpasenbienn240098.html",
+// "urlToImage": "https://cdn.lesnumeriques.com/optim/news/24/240098/36ce083dwhatsappsurwindowsilvayavoirduchangementetpasenbien__1200_678__010341282270.jpg",
+// "publishedAt": "202507${this.props}T13:02:00Z",
+// "content": "En 2022, Meta déployait une bienvenue application native sur Windows pour son service de messagerie WhatsApp. Celleci, grâce à son architecture UWP (WinUI), profitait ainsi d'un sérieux gain de réac… [+2962 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Xatakamovil.com"
+// },
+// "author": "Noelia Hontoria",
+// "title": "De San Sebastián a Costa de Marfil: un AirTag escondido desvela dónde acaba la ropa que donamos",
+// "description": "Los contenedores para donar la ropa que ya no usamos o para reciclar aquello que tiene algún defecto o no está en el mejor estado están por todas las ciudades. Pero la pregunta es dónde acaban esas prendas que donamos con nuestra mejor intención de ayudar.\n<!…",
+// "url": "https://www.xatakamovil.com/conectividad/sansebastianacostamarfilairtagescondidodesveladondeacabaropaquedonamos",
+// "urlToImage": "https://i.blogs.es/18032f/airtagcruzroja/840_560.jpeg",
+// "publishedAt": "202507${this.props}T10:01:34Z",
+// "content": "Los contenedores para donar la ropa que ya no usamos o para reciclar aquello que tiene algún defecto o no está en el mejor estado están por todas las ciudades. Pero la pregunta es dónde acaban esas p… [+2380 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Xatakamovil.com"
+// },
+// "author": "Pepu Ricca",
+// "title": "Japón quiere volver a ser grande en semiconductores. Sus chips tienen un nuevo nombre que promete competir con China y Taiwán",
+// "description": "Hubo un tiempo en el que Japón dominaba el mercado de los chips. Y hoy ya suena extraño, pero en 1988, empresas como NEC, Toshiba o Hitachi acaparaban el 50% de la industria mundial de semiconductores. Décadas después, esa hegemonía se ha desvanecido, con un …",
+// "url": "https://www.xatakamovil.com/mercado/japonquierevolverasergrandesemiconductoressuschipstienennuevonombrequeprometecompetirchinataiwan",
+// "urlToImage": "https://i.blogs.es/5261f2/gemini_generated_image_aqoxwuaqoxwuaqox/840_560.jpeg",
+// "publishedAt": "202507${this.props}T11:31:33Z",
+// "content": "Hubo un tiempo en el que Japón dominaba el mercado de los chips. Y hoy ya suena extraño, pero en 1988, empresas como NEC, Toshiba o Hitachi acaparaban el 50% de la industria mundial de semiconductore… [+3157 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Internet"
+// },
+// "author": "info@thehackernews.com (The Hacker News)",
+// "title": "⚡ Weekly Recap: SharePoint 0Day, Chrome Exploit, macOS Spyware, NVIDIA Toolkit RCE and More",
+// "description": "Even in wellsecured environments, attackers are getting in—not with flashy exploits, but by quietly taking advantage of weak settings, outdated encryption, and trusted tools left unprotected.\nThese attacks don’t depend on zerodays. They work by staying unno…",
+// "url": "https://thehackernews.com/2025/07/weeklyrecapsharepoint0daychrome.html",
+// "urlToImage": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhmr96QmcgJQXMmOhqRG7X_Bb6pdTpNdG5q4OSXJ9b17yJNI_NbRmQQn7dqG4k60xYbxu9SdXhyphenhyphentf3iXmBGQRhwGT2PXIdek3tdO8LNmUafEdZwbwpRxSH3kWkRBhrE6R7exHfqQ2_odWSC2VHDpoFeUg1U94yusxaQjjutiTr79kyR2Mo8WRQaknRwv7/s728rwe365/recaprecap.jpg",
+// "publishedAt": "202507${this.props}T11:38:00Z",
+// "content": "Even in wellsecured environments, attackers are getting in—not with flashy exploits, but by quietly taking advantage of weak settings, outdated encryption, and trusted tools left unprotected.\r\nThese… [+33784 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Rolling Stone"
+// },
+// "author": "Althea Legaspi",
+// "title": "Mariah Carey Teases ‘MC16’ Details, Previews ‘Sugar Sweet’",
+// "description": "Mariah Carey announced 'MC16' details are coming Monday and teased new song 'Sugar Sweet' over the weekend.",
+// "url": "http://www.rollingstone.com/music/musicnews/mariahcareymc16detailspreviewssongsugarsweet1235389722/",
+// "urlToImage": "https://www.rollingstone.com/wpcontent/uploads/2025/07/MariahCareyMC16DetailsComing1.jpg?w=1600&h=900&crop=1",
+// "publishedAt": "202507${this.props}T02:38:58Z",
+// "content": "Mariah Carey is getting ready to reveal details about “MC16” — presumably her longawaited followup album to 2018’s Caution — and the intel will arrive tomorrow, July ${this.props}. She teased the coming news … [+1807 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Caschys Blog"
+// },
+// "author": "André Westphal",
+// "title": "WhatsApp beginnt unter iOS mit der Werbung im Status und in einigen Kanälen (Beta)",
+// "description": "WhatsApp steht ab sofort in der Betaversion 25.20.10.78 für Apple iOS zur Verfügung. Und mittlerweile beginnt die MessagingApp damit, die „angedrohte“ Werbung im Status und in einigen Promoted Channels auszurollen. Für Android gibt es diese „Funktion“ ebenfa…",
+// "url": "https://stadtbremerhaven.de/whatsappbeginntunteriosmitderwerbungimstatusundineinigenkanaelenbeta/",
+// "urlToImage": "https://stadtbremerhaven.de/wpcontent/uploads/2025/07/WhatsAppLogo2025.jpg",
+// "publishedAt": "202507${this.props}T07:30:31Z",
+// "content": "WhatsApp steht ab sofort in der Betaversion 25.20.10.78 für Apple iOS zur Verfügung. Und mittlerweile beginnt die MessagingApp damit, die „angedrohte“ Werbung im Status und in einigen Promoted Chann… [+1626 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Caschys Blog"
+// },
+// "author": "André Westphal",
+// "title": "LG Electronics will neuen LCDDeal mit BOE austüfteln",
+// "description": "LG Electronics nutzt für seine LCDTVs unter anderem BOE aus China als Zulieferer. So verfügt das eigene Tochterunternehmen LG Display mittlerweile über keine eigenen LCDFabriken mehr. Die letzte hatte man 2024 an TCL CSOT verkauft. Noch in diesem Monat will…",
+// "url": "https://stadtbremerhaven.de/lgelectronicswillneuenlcddealmitboeaustuefteln/",
+// "urlToImage": "https://stadtbremerhaven.de/wpcontent/uploads/2024/12/ImageLGQNED2.jpg",
+// "publishedAt": "202507${this.props}T12:00:27Z",
+// "content": "LG Electronics nutzt für seine LCDTVs unter anderem BOE aus China als Zulieferer. So verfügt das eigene Tochterunternehmen LG Display mittlerweile über keine eigenen LCDFabriken mehr. Die letzte ha… [+${this.props}84 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Caschys Blog"
+// },
+// "author": "André Westphal",
+// "title": "LG StanbyME 2: Mobiler Screen startet im August 2025 in Deutschland",
+// "description": "LG hatte seinen mobilen Bildschirm StanbyME 2 schon vor einer Weile in der ersten Generation präsentiert. Jetzt hat man sich aber zum Launch eines Nachfolgemodells in Deutschland konkreter geäußert. So soll das Display im August 2025 hierzulande auf den Markt…",
+// "url": "https://stadtbremerhaven.de/lgstanbyme2mobilerscreenstartetimaugust2025indeutschland/",
+// "urlToImage": "https://stadtbremerhaven.de/wpcontent/uploads/2025/07/LGStanByME.jpg",
+// "publishedAt": "202507${this.props}T16:00:33Z",
+// "content": "LG hatte seinen mobilen Bildschirm StanbyME 2 schon vor einer Weile in der ersten Generation präsentiert. Jetzt hat man sich aber zum Launch eines Nachfolgemodells in Deutschland konkreter geäußert. … [+2913 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Ulrich Rozier",
+// "title": "iPhone Fold en 2026 : Apple devrait copier Samsung",
+// "description": "L'iPhone Fold de 2026 ressemblerait étrangement au Galaxy Z Fold 7 selon Bloomberg. Bloomberg évoque le futur de l'iPhone, encore une fois, c'est Mark",
+// "url": "https://www.frandroid.com/marques/apple/2739299_iphonefolden2026appledevraitcopiersamsung",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/07/image623.jpg?resize=1600,900&key=abc264c1&watermark",
+// "publishedAt": "202507${this.props}T06:03:13Z",
+// "content": "L’iPhone Fold de 2026 ressemblerait étrangement au Galaxy Z Fold 7 selon Bloomberg. \r\nBloomberg évoque le futur de l’iPhone, encore une fois, c’est Mark Gurman aux commandes. L’iPhone Fold arriverait… [+1981 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Corentin Béchade",
+// "title": "Le prochain iPad Pro pourrait simplifier vos appels en visio",
+// "description": "Bien décidé à faire de sa lignée d’iPad Pro un vrai concurrent aux ordinateurs d’aujourd’hui, Apple devrait équiper sa prochaine tablette de deux modules photo afin de simplifier les problématiques de visioconférence.",
+// "url": "https://www.frandroid.com/marques/apple/2739293_leprochainipadpropourraitsimplifiervosappelsenvisio",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2024/05/16052024dsc00085appleipadprom42024frandroid.jpg?resize=1600,900&key=17b03b11&watermark",
+// "publishedAt": "202507${this.props}T05:47:00Z",
+// "content": "Bien décidé à faire de sa lignée d’iPad Pro un vrai concurrent aux ordinateurs d’aujourd’hui, Apple devrait équiper sa prochaine tablette de deux modules photo afin de simplifier les problématiques d… [+2662 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Ulrich Rozier",
+// "title": "Cyberpunk 2077 testé sur puces Apple M1 à M4 : voilà ce que ça donne",
+// "description": "Cyberpunk 2077 sur Mac, ça donne quoi ? Le YouTubeur Andrew Tsai a testé le jeu sur quatre configurations différentes, du MacBook Air M1 8 Go au MacBook Pro M3 Max.",
+// "url": "https://www.frandroid.com/os/macos/2739279_cyberpunk2077testesurpucesapplem1am4voilacequecadonne",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/07/cyberpunk2077onmactheultimateapplesilicongamingtest017screenshot.jpg?resize=1600,900&key=e6b61ba7&watermark",
+// "publishedAt": "202507${this.props}T05:35:46Z",
+// "content": "Cyberpunk 2077 sur Mac, ça donne quoi ? Le YouTubeur Andrew Tsai a testé le jeu sur quatre configurations différentes, du MacBook Air M1 8 Go au MacBook Pro M3 Max.\r\nQue je il n’a pas pu atterrir ! C… [+5510 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Axel Savoye",
+// "title": "Les smartphones sont déstockés pour la fin des soldes : voici les meilleures offres iPhone, Samsung Galaxy, Google Pixel…",
+// "description": "Les smartphones sont souvent les vedettes de périodes promotionnelles. Pour les soldes d’été 2025, on trouve une myriade d'offres sur ces appareils : Samsung, Apple, Xiaomi, Nothing... Tout y passe... Voici notre sélection des offres les plus intéressantes po…",
+// "url": "https://www.frandroid.com/bonsplans/2659465_lessmartphonessontdestockespourlafindessoldesvoicilesmeilleuresoffresiphonesamsunggalaxygooglepixel",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/07/smartphonesdernieredemarquesoldesdete.jpg?resize=1600,900&key=${this.props}268731&watermark",
+// "publishedAt": "202507${this.props}T10:20:49Z",
+// "content": "Les smartphones sont souvent les vedettes de périodes promotionnelles. Pour les soldes dété 2025, on trouve une myriade d’offres sur ces appareils : Samsung, Apple, Xiaomi, Nothing… Tout y passe… Voi… [+15756 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Corentin Béchade",
+// "title": "Sécurité des iPhone : le RoyaumeUni prêt à revenir sur son interdiction du chiffrement pour ne pas fâcher Trump",
+// "description": "C’est un début de bonne nouvelle pour les défenseurs et défenseuses de la vie privée. Alors que le RoyaumeUni avait tenté d’interdire le chiffrement web opéré par Apple sur iCloud, il semblerait que le pays a finalement changé d’avis sous les pressions de l’…",
+// "url": "https://www.frandroid.com/marques/apple/2739349_securitedesiphoneleroyaumeunipretarevenirsursoninterdictionduchiffrementpournepasfachertrump",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/04/donaldtrumpandtimcook20180425.jpeg?resize=1600,900&key=7d90af14&watermark",
+// "publishedAt": "202507${this.props}T11:35:17Z",
+// "content": "C’est un début de bonne nouvelle pour les défenseurs et défenseuses de la vie privée. Alors que le RoyaumeUni avait tenté d’interdire le chiffrement web opéré par Apple sur iCloud, il semblerait que… [+2989 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Romain Ribout",
+// "title": "Soldes d’été 2025 : plus que deux jours avant la fin, voici les ultimes offres à saisir sur Amazon, Fnac, Darty…",
+// "description": "Il ne reste plus que deux jours avant la fin des soldes d'été. Les ecommerçants tels qu'Amazon, la Fnac, Darty ou encore Boulanger l'ont bien compris et redoublent d'efforts pour baisser encore plus les prix. C'est donc le meilleur moment de faire de bonnes …",
+// "url": "https://www.frandroid.com/bonsplans/2734595_soldesdete2025plusquedeuxjoursavantlafinvoicilesultimesoffresasaisirsuramazonfnacdarty",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/07/copiedesoldedete2025frandroidunes2.jpg?resize=1600,900&key=8e9c${this.props}dd&watermark",
+// "publishedAt": "202507${this.props}T08:20:24Z",
+// "content": "Il ne reste plus que deux jours avant la fin des soldes d’été. Les ecommerçants tels qu’Amazon, la Fnac, Darty ou encore Boulanger l’ont bien compris et redoublent d’efforts pour baisser encore plus… [+4630 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Nathan Le Gohlisse",
+// "title": "Pourquoi le smartphone retrouve enfin le sourire, sauf en Chine",
+// "description": "Le cabinet d'analyse IDC rapporte une croissance timide, mais tout de même intrigante, de 1% pour le marché du smartphone au second trimestre 2025. Cette hausse n'est, étonnamment, pas due aux ventes d'appareils en Chine... où le secteur souffre au contraire …",
+// "url": "https://www.frandroid.com/culturetech/economie/2739601_pourquoilesmartphoneretrouveenfinlesouriresaufenchine",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2024/11/oppofindx8pro19scaled.jpg?resize=1600,900&key=58daaa24&watermark",
+// "publishedAt": "202507${this.props}T12:48:43Z",
+// "content": "Le cabinet d’analyse IDC rapporte une croissance timide, mais tout de même intrigante, de 1% pour le marché du smartphone au second trimestre 2025. Cette hausse n’est, étonnamment, pas due aux ventes… [+3149 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Axel Savoye",
+// "title": "Les PC portables et tablettes sont à prix bas pour la fin des soldes d’été : voici les 22 bonnes affaires de cette toute dernière démarque",
+// "description": "Les soldes d'été 2025 touchent bientôt à leur fin, mais pour ces derniers jours de la dernière démarque, on trouve encore de très belles offres, notamment du côté des PC portables et des tablettes. Les promotions sont nombreuses, et nous avons regroupé celles…",
+// "url": "https://www.frandroid.com/bonsplans/2711001_lespcportablesettablettessontaprixbaspourlafindessoldesdetevoiciles22bonnesaffairesdecettetoutedernieredemarque",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/07/soldesdeteguidepcportabletablettesoldesdete20252.jpg?resize=1600,900&key=1b8f5849&watermark",
+// "publishedAt": "202507${this.props}T14:14:22Z",
+// "content": "Les soldes d’été 2025 touchent bientôt à leur fin, mais pour ces derniers jours de la dernière démarque, on trouve encore de très belles offres, notamment du côté des PC portables et des tablettes. L… [+18373 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Mélanie Capelli",
+// "title": "Fnac et Darty vident leurs stocks pour la fin des soldes : les 29 deals à ne pas manquer",
+// "description": "Pour la fin des soldes, Fnac et Darty proposent encore une tonne de produits à prix réduit. Toutes les offres ne sont pas bonnes à prendre, nous avons alors fait le tri pour vous afin de vous proposer les véritables dernière pépites de l’évènement.",
+// "url": "https://www.frandroid.com/bonsplans/2664835_fnacetdartyvidentleursstockspourlafindessoldesles29dealsanepasmanquer",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/07/fnacdernieredemarquesoldesdete2025.jpg?resize=1600,900&key=ccaea79b&watermark",
+// "publishedAt": "202507${this.props}T12:37:39Z",
+// "content": "Pour la fin des soldes, Fnac et Darty proposent encore une tonne de produits à prix réduit. Toutes les offres ne sont pas bonnes à prendre, nous avons alors fait le tri pour vous afin de vous propose… [+${this.props}753 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Frandroid"
+// },
+// "author": "Geoffroy Husson",
+// "title": "Test de la Samsung Galaxy Watch 8 : une montre tout en finesse, au format innovant",
+// "description": "Avec sa Galaxy Watch 8, Samsung innove en changeant de format, mais sans manquer d'atouts. Voici son test complet. La Samsung Galaxy Watch 8 //",
+// "url": "https://www.frandroid.com/marques/samsung/2731481_testdelasamsunggalaxywatch8unemontretoutenfinesseauformatinnovant",
+// "urlToImage": "https://c0.lestechnophiles.com/images.frandroid.com/wpcontent/uploads/2025/07/dsc00189scaled.jpg?resize=1600,900&key=6cc52e70&watermark",
+// "publishedAt": "202507${this.props}T09:52:45Z",
+// "content": "Après un design resté inchangé pendant quatre ans, Samsung s’est enfin décidé à innover avec sa Galaxy Watch 8. Outre son nouveau format carrondi, la montre a aussi eu droit à une cure de minceur et … [+25082 chars]"
+// },
+// {
+// "source": {
+// "id": "lenta",
+// "name": "Lenta"
+// },
+// "author": "Андрей Ставицкий",
+// "title": "iPhone 15 Plus подешевел в России",
+// "description": "Смартфон iPhone 15 Plus подешевел на российском рынке до рекордной отметки. Об этом сообщает издание HiTech Mail.ru",
+// "url": "https://lenta.ru/news/2025/07/${this.props}/15plus/",
+// "urlToImage": "https://icdn.lenta.ru/images/2025/07/${this.props}/13/202507${this.props}130558396/share_1ffadd5fc4f12eeb7ee62f99480c0962.jpg",
+// "publishedAt": "202507${this.props}T15:49:39Z",
+// "content": "iPhone 15 Plus . HiTech Mail.ru.\r\n , Apple , 2023 , 58 . «iPhone 15 Plus iPhone », . OLED 6,7 .\r\n , 15 Plus 2025 10 , iPhone 15. « », . , iPhone 16e 15 iPhone 15 Plus.\r\n15 Plus A16 Bionic, 6 . 48 1… [+53 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "GSMArena.com"
+// },
+// "author": "Peter",
+// "title": "Leak: the Google Pixel Watch 4 will have a brighter display, may have a new chipset after all",
+// "description": "Details on the Google Pixel Watch 4 have been trickling out in the buildup to the August 20 unveiling. The latest scuttlebutt reveals that the new model will have a brighter display and new silicon for improved efficiency.\n\nThe Pixel Watch 4 will be availabl…",
+// "url": "https://www.gsmarena.com/leak_the_google_pixel_watch_4_will_have_a_brighter_display_may_have_a_new_chipset_after_allnews68702.php",
+// "urlToImage": "https://fdn.gsmarena.com/imgroot/news/25/07/googlepixelwatch4displaychipsetleak/952x498w6/gsmarena_000.jpg",
+// "publishedAt": "202507${this.props}T11:30:03Z",
+// "content": "Details on the Google Pixel Watch 4 have been trickling out in the buildup to the August 20 unveiling. The latest scuttlebutt reveals that the new model will have a brighter display and new silicon … [+2552 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "PCWorld"
+// },
+// "author": "Michael Crider",
+// "title": "Update now! Microsoft SharePoint is actively being exploited by hackers",
+// "description": "SharePoint is one of those lessvisible portions of Microsoft Office. It’s a tool for managing shared files across users and systems — if you don’t use it for work, you may never have heard of it, but if you do, it’s probably a lynchpin of your daily team fun…",
+// "url": "https://www.pcworld.com/article/2854025/updatenowmicrosoftsharepointactivelyexploitedbyhackers.html",
+// "urlToImage": "https://www.pcworld.com/wpcontent/uploads/2025/07/image_188fc5.png?w=1024",
+// "publishedAt": "202507${this.props}T14:25:54Z",
+// "content": "Skip to contentType your search and hit enter\r\nWhen you purchase through links in our articles, we may earn a small commission. This doesn't affect our editorial independence\r\n.\r\nSharePoint is one of… [+1833 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "PCWorld"
+// },
+// "author": "Michael Crider",
+// "title": "Crucial’s speedy Gen 5 SSD is already a bargain—and today, it’s 36% off",
+// "description": "You probably don’t need a PCIE 5.0 solidstate drive. At current prices, and the modest speed improvements they give for most people (even gamers) just aren’t worth it unless you’re moving big chunks of data around regularly. That being said, I feel and under…",
+// "url": "https://www.pcworld.com/article/2854166/crucialsspeedygen5ssdisalreadyabargainandtodayits36off.html",
+// "urlToImage": "https://www.pcworld.com/wpcontent/uploads/2025/07/CrucialT710installedb.jpg?quality=50&strip=all&w=1024",
+// "publishedAt": "202507${this.props}T15:59:05Z",
+// "content": "Skip to contentType your search and hit enter\r\nWhen you purchase through links in our articles, we may earn a small commission. This doesn't affect our editorial independence\r\n.\r\nYou probably don’t n… [+2348 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "PCWorld"
+// },
+// "author": "Michael Crider",
+// "title": "This Nvidia RTX laptop mod unlocks amazing performance. Don’t do it!",
+// "description": "Geeks love to get a little more power out of their hardware by digging deep in its guts, either literally or with software. A little gentle overclocking is usually safe, and in fact it’s expected to a certain degree by manufacturers. But an unorthodox method …",
+// "url": "https://www.pcworld.com/article/2854038/thisnvidiartxlaptopmodunlocksamazingperformancedontdoit.html",
+// "urlToImage": "https://www.pcworld.com/wpcontent/uploads/2025/07/NvidiaRTX50SeriesgaminglaptopwithCyberpunkonscreenpromo.jpg?quality=50&strip=all&w=1024",
+// "publishedAt": "202507${this.props}T15:05:10Z",
+// "content": "Skip to contentType your search and hit enter\r\nWhen you purchase through links in our articles, we may earn a small commission. This doesn't affect our editorial independence\r\n.\r\nGeeks love to get a … [+4349 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "PCWorld"
+// },
+// "author": "Author: Jon L. Jacobi",
+// "title": "PNY Duo Link V3 review: A versatile USB flash drive for lightduty use",
+// "description": "At a glanceExpert's Rating\r\n\n\nPros\r\n\n<ul>\n<li>Good everyday 10Gbps performance</li>\n\n\n\n<li>TypeC and TypeA connectors</li>\n\n\n\n<li>Affordable for the capacities</li>\n</ul>\n\r\n\n\n\n\nCons\r\n\n<ul>\n<li>The slowest offcache write speed we’ve ever seen</li>\n</ul>\n\r\n\n…",
+// "url": "https://www.pcworld.com/article/2832552/pnyduolinkv3review.html",
+// "urlToImage": "https://www.pcworld.com/wpcontent/uploads/2025/07/pnyduolinkv3hero1.jpg?quality=50&strip=all&w=1024",
+// "publishedAt": "202507${this.props}T15:00:00Z",
+// "content": "Skip to contentType your search and hit enter\r\nWhen you purchase through links in our articles, we may earn a small commission. This doesn't affect our editorial independence\r\n.\r\nAt a glance<ul><li>G… [+7111 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Stratechery.com"
+// },
+// "author": "Ben Thompson",
+// "title": "Content and Community",
+// "description": "The old model for content sprung from geographic communities; the new model for content is to be the organizing principle for virtual communities.",
+// "url": "https://stratechery.com/2025/contentandcommunity/",
+// "urlToImage": "https://149384716.v2.pressablecdn.com/wpcontent/uploads/2014/06/abundance.png",
+// "publishedAt": "202507${this.props}T12:10:03Z",
+// "content": "One of the oldest and most fruitful topics on Stratechery has been the evolution of the content industry, for two reasons: first, it undergirded the very existence of Stratechery itself, which I’ve l… [+27716 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "MacStories"
+// },
+// "author": "MacStories Team",
+// "title": "Hello Weather: The Exceptionally Useful Weather App for iOS, Totally Redesigned for 2025 [Sponsor]",
+// "description": "One of the most beloved indie weather apps just got a massive overhaul, and it’s worth checking out as your new daily driver. The whole app has been modernized and rebuilt from the ground up, and it feels great. Hello Weather has always been known for its sim…",
+// "url": "https://www.macstories.net/sponsored/helloweathertheexceptionallyusefulweatherappforiostotallyredesignedfor2025sponsor/",
+// "urlToImage": "https://cdn.macstories.net/hwpostbanner1753018874530.png",
+// "publishedAt": "202507${this.props}T11:42:10Z",
+// "content": "One of the most beloved indie weather apps just got a massive overhaul, and it’s worth checking out as your new daily driver. The whole app has been modernized and rebuilt from the ground up, and it … [+1282 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Uol.com.br"
+// },
+// "author": "F451 Mídia",
+// "title": "iPhone 16 Pro Max 1 TB que grava vídeos em 4K Dolby Vision sai 22% OFF",
+// "description": "Elegância, velocidade e fotografia de nível profissional — aproveite essa oferta e leve para casa o melhor iPhone já feito!\nThe post iPhone 16 Pro Max 1 TB que grava vídeos em 4K Dolby Vision sai 22% OFF appeared first on Giz Brasil.",
+// "url": "https://gizmodo.uol.com.br/iphone16promax1tb/",
+// "urlToImage": "https://gizmodo.uol.com.br/wpcontent/blogs.dir/8/files/2025/07/AppleiPhone16ProMax1TB.jpg",
+// "publishedAt": "202507${this.props}T15:00:22Z",
+// "content": "O Apple iPhone 16 Pro Max (1TB) é o modelo mais avançado da linha Pro da Apple até agora, combinando tecnologia de ponta, design sofisticado em titâniopreto e recursos profissionais de imagem, segur… [+2920 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Smartworld.it"
+// },
+// "author": "Emanuele Cisotti",
+// "title": "Ascesa e declino di HTC: il marchio che ha fatto la storia di Android",
+// "description": "Se navigate nel nostro sito troverete molte recensioni di smartphone HTC, soprattutto degli anni passati. L'azienda taiwanese infatti è il...\r\nL'articolo Ascesa e declino di HTC: il marchio che ha fatto la storia di Android sembra essere il primo su Smartworl…",
+// "url": "https://www.smartworld.it/android/storiahtc.html",
+// "urlToImage": "https://www.smartworld.it/images/2025/07/${this.props}/htc_1200x675.png",
+// "publishedAt": "202507${this.props}T14:24:00Z",
+// "content": "Se navigate nel nostro sito troverete molte recensioni di smartphone HTC, soprattutto degli anni passati. L'azienda taiwanese infatti è il brand che più di tutti ha creduto in Android, ma che ormai a… [+6754 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Andro4all.com"
+// },
+// "author": "Sergio Agudo",
+// "title": "Por qué no deberías comprarte un iPad Pro ahora mismo",
+// "description": "Apple está preparando cambios importantes para los iPad Pro de 2025, y dos cámaras frontales con el chip M5 son las principales novedades. Los rumores sitúan el lanzamiento en septiembre u octubre, con mejoras que van directas a solucionar uno de los problema…",
+// "url": "https://andro4all.com/apple/porquenodeberiascomprarteunipadproahoramismo",
+// "urlToImage": "https://andro4all.com/hero/2025/06/ipadprom4.1751006276.342.jpg?width=1200",
+// "publishedAt": "202507${this.props}T12:01:25Z",
+// "content": "Apple busca mejorar la experiencia de creación de contenido con cámaras frontales tanto en vertical como horizontal, adaptándose mejor al uso real de estos dispositivos\r\nApple está preparando cambios… [+3455 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Andro4all.com"
+// },
+// "author": "Sergio J. Ortiz",
+// "title": "Comprar un buen iPhone de oferta por 300 euros es posible con esta gran rebaja de AliExpress",
+// "description": "La industria de la telefonía móvil cuenta con una amplia variedad de fabricantes dispuestos a hacer las delicias de los consumidores con los mejores móviles de gama alta y otros smartphones con una relación calidadprecio muy equilibrada. Y ahora AliExpress d…",
+// "url": "https://andro4all.com/ofertas/comprarunbueniphonedeofertapor300eurosesposibleconestagranrebajadealiexpress",
+// "urlToImage": "https://andro4all.com/hero/2025/07/apple_announceiphone12pro_10132020.jpg.landingbig_2x.jpg?width=1200",
+// "publishedAt": "202507${this.props}T12:30:12Z",
+// "content": "Imágenes promocionales de Apple en el lanzamiento del iPhone 12 Pro\r\nLa industria de la telefonía móvil cuenta con una amplia variedad de fabricantes dispuestos a hacer las delicias de los consumidor… [+2392 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Tomshw.it"
+// },
+// "author": "Luca Zaninello",
+// "title": "iPad Pro avrà due fotocamere frontali?",
+// "description": "Il mondo dei tablet professionali si prepara a un'evoluzione che potrebbe sembrare minima a prima vista, ma che in realtà rappresenta una svolta per milioni di utenti. Apple starebbe lavorando...",
+// "url": "https://www.tomshw.it/smartphone/ipadproavraduefotocamerefrontali202507${this.props}",
+// "urlToImage": "https://www.tomshw.it/storage/media/2024/05/20617/AppleiPadProUltraRetinaXDRwithOLED240507.jpg",
+// "publishedAt": "202507${this.props}T09:45:29Z",
+// "content": "Il mondo dei tablet professionali si prepara a un'evoluzione che potrebbe sembrare minima a prima vista, ma che in realtà rappresenta una svolta per milioni di utenti. Apple starebbe lavorando per ri… [+2953 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Idownloadblog.com"
+// },
+// "author": "Christian Zibreg",
+// "title": "iOS 27 to prioritize software features for a foldable iPhone",
+// "description": "Apple is about to kick off development work on its iOS 27 operating system coming next year, which will include software features for a foldable iPhone.",
+// "url": "https://www.idownloadblog.com/2025/07/${this.props}/appleios27foldableiphonesoftwarefeaturesrumor/",
+// "urlToImage": "https://media.idownloadblog.com/wpcontent/uploads/2025/06/AppleWWDC2025TimCookAppleParkHeadquarters.jpg",
+// "publishedAt": "202507${this.props}T12:08:06Z",
+// "content": "Apple is about to kick off development work on its iOS 27 operating system coming next year that will reportedly include software features for a foldable iPhone.\r\nTim Cook presenting for the WWDC25 k… [+2635 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Idownloadblog.com"
+// },
+// "author": "Christian Zibreg",
+// "title": "How to hide AIgenerated images in DuckDuckGo search results",
+// "description": "Learn how to hide all images generated by artificial intelligence (AI) in the image search results in DuckDuckGo on an iPhone, iPad and Mac.",
+// "url": "https://www.idownloadblog.com/2025/07/${this.props}/duckduckgohideaiimagesearchresultstutorial/",
+// "urlToImage": "https://media.idownloadblog.com/wpcontent/uploads/2025/07/DuckDuckGoAppIcon.jpg",
+// "publishedAt": "202507${this.props}T14:10:${this.props}Z",
+// "content": "Learn how to hide all images generated by artificial intelligence (AI) from your image search results in DuckDuckGo on an iPhone, iPad, Mac and the web.\r\nDuckDuckGo can remove AI from search results.… [+4311 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Nextpit.de"
+// },
+// "author": "Dustin Porth",
+// "title": "Nur kurze Zeit: Google Pixel 9 ohne Vertrag jetzt radikal reduziert!",
+// "description": "Bei MediaMarkt könnt Ihr Euch das Google Pixel 9 gerade für weniger als 500 Euro schnappen. Ob sich das Smartphone ohne Tarif lohnt, erfahrt Ihr hier.",
+// "url": "https://www.nextpit.de/deals/nurkurzezeitgooglepixel9ohnevertragjetztradikalreduziert",
+// "urlToImage": "https://fs.npstatic.com/userfiles/7695${this.props}3/image/googlepixel9/googlepixel9reviewnextpit1w1400h788.jpg",
+// "publishedAt": "202507${this.props}T14:30:59Z",
+// "content": "Das Google Pixel 9 erlebt in den letzten Wochen einen regelrechten Preissturz. Das Smartphone erhielt ein massives Preisschild zum Release verpasst, allerdings war bereits klar, dass es nicht an die … [+3271 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "Nextpit.de"
+// },
+// "author": "Lisa Krüger",
+// "title": "PreisLeistungsKnaller: Smartwatches von Kospet jetzt richtig günstig",
+// "description": "Die Smartwatches Magic P10 und R10 von Kospet bieten innovative Funktionen und stylisches Design zu einem unschlagbaren Preis. Mehr Infos gibt's hier.",
+// "url": "https://www.nextpit.de/deals/preisleistungsknallersmartwatchesvonkospetjetztrichtigguenstig",
+// "urlToImage": "https://fs.npstatic.com/userfiles/7764123/image/Kospet_Magic_P10w1400h788.jpg",
+// "publishedAt": "202507${this.props}T11:30:00Z",
+// "content": "Der Hersteller Kospet bringt mit den neuen Modellen Magic P10 und Magic R10 zwei leistungsstarke Smartwatches auf den Markt, die vor allem wegen ihres starken PreisLeistungsVerhältnisses interessan… [+2606 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "TalkAndroid"
+// },
+// "author": "Irene Okpanachi",
+// "title": "Roku’s New Streaming Sticks Are Up To $11 Off In Limited Sale",
+// "description": "You can get a quality Roku streaming stick for as low as $19 today if you hurry to Amazon.",
+// "url": "https://www.talkandroid.com/51${this.props}70rokusticksamazonsale/",
+// "urlToImage": "https://www.talkandroid.com/wpcontent/uploads/2025/07/RokustreamingsticksAmazonsale.jpg",
+// "publishedAt": "202507${this.props}T11:31:42Z",
+// "content": "Roku already refreshed its lineup earlier this year with two streaming sticks back in April. The Streaming Stick and Streaming Stick Plus offer 4K HDR performance in a tiny shell within a $30$40 pri… [+2809 chars]"
+// },
+// {
+// "source": {
+// "id": null,
+// "name": "TalkAndroid"
+// },
+// "author": "Talk Android",
+// "title": "Status Audio Pro X Earbuds Debut: HiRes Sound and PreOrder Discount",
+// "description": "Status Audio's flagship Pro X wireless earbuds launch today with preorder pricing at $249. The September retail debut promises audiophilegrade sound through",
+// "url": "https://www.talkandroid.com/512268statusaudioproxearbudspreorder/",
+// "urlToImage": "https://www.talkandroid.com/wpcontent/uploads/2025/07/remoteimage1753101085.jpg",
+// "publishedAt": "202507${this.props}T14:30:00Z",
+// "content": "Status Audio's flagship Pro X wireless earbuds launch today with preorder pricing at $249. The September retail debut promises audiophilegrade sound through a triple driver system rarely seen in th… [+3207 chars]"
+// },
+// {
+// "source": {
+// "id": "espn",
+// "name": "ESPN"
+// },
+// "author": "Kevin Pelton",
+// "title": "Regrading the biggest moves of the 2024 NBA offseason, one year later",
+// "description": "NBA expert Kevin Pelton looks back at 10 of the biggest trade and free agency moves and regrades them.",
+// "url": "https://www.espn.com/nba/story/_/id/45769897/regradinglastseasonbiggestfreeagencydeals",
+// "urlToImage": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F0720%2Fr15${this.props}442_1296x729_16%2D9.jpg",
+// "publishedAt": "202507${this.props}T11:${this.props}:52Z",
+// "content": "In the summer of 2024, we saw no major superstars change teams. And rarely does an offseason such as that have as much of an impact on the following season's title race. Of the four teams that reache… [+16329 chars]"
+// }
+// ]
+    constructor(props){
+    super(props);
+    console.log("heloo im constor")
+    this.state={
+     articles:[],
+     page:1,
+     loading:false
+
+    }
+    document.title=`${this.capitalizeFirstLetter(this.props.category)}-NewsMonkey`
+  }
+  async componentDidMount(){
+    console.log("cmd")
+    let url=`https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=56114773742443238d68f1a90ba5175e&page=1&pagesize=${this.props.pagesize}`;
+    this.setState({loading: true})
+     let data=await fetch(url)
+     let parsesdata=await data.json()
+     console.log(parsesdata);
+     this.setState({articles:parsesdata.articles,totalResults:parsesdata.totalResults,loading:false})
+     
+  }
+  handlepreviews=async()=>{
+    console.log("cmd")
+     let url=`https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=56114773742443238d68f1a90ba5175e&page=${this.state.page -1}&pagesize=${this.props.pagesize}`
+;
+     this.setState({loading: true})
+     let data=await fetch(url)
+     let parsesdata=await data.json()
+     console.log(parsesdata);
+     this.setState({
+      page:this.state.page -1,
+      articles:parsesdata.articles,
+      loading:false
+     })
+    
+    
+  }
+  handlenext=async()=>{
+    console.log('next');
+    if(!(this.state.page +1> Math.ceil(this.state.totalResults/this.props.pagesize))){
+    let url=`https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=56114773742443238d68f1a90ba5175e&page=${this.state.page +1}&pagesize=${this.props.pagesize}`;
+    this.setState({loading:true})
+     let data=await fetch(url)
+     let parsesdata=await data.json()
+     this.setState({
+      page:this.state.page +1,
+      articles:parsesdata.articles,
+      loading:false
+     })
+    }
+    
+    
+  }
+  render() {
+    return (
+    <div className='container'>
+        <div className='row my-3'>
+          <h1 className='text-center'>NewsMonkey-Top {this.capitalizeFirstLetter(this.props.category)} Headlines</h1>
+          {this.state.loading && <Spinner/> }
+          {this.state.articles.map((element)=>{
+              return  <div className='col-md-4' key={element.url}>
+                 <NewsItems title={element.title} descrption={element.description} imgurl={element.urlToImage} newurl={element.url} author={element.author} date={element.publishedAt} source={element.source.name}/>
+            </div>
+          })}
+          <div className='container d-flex justify-content-between'>
+            <button disabled={this.state.page<=1} type="button" onClick={this.handlepreviews} className="btn btn-dark">&larr;Previews</button>
+            <button disabled={this.state.page +1> Math.ceil(this.state.totalResults/this.props.pagesize)} type="button" onClick={this.handlenext} className="btn btn-dark">Next&rarr;</button>
+          </div>
+     
+           
+           
+        </div>
+      </div>
+    )
+  }
+}
+
+export default News
